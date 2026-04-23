@@ -19,6 +19,9 @@ import ClaimPage from './pages/ClaimPage'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { AuthProvider } from './contexts/AuthContext'
 
+// Components
+import { ProtectedRoute } from './components/ProtectedRoute'
+
 // Create React Query client
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,11 +55,34 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
-                <Route path="/booking" element={<BookingPage />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/claim/:token" element={<ClaimPage />} />
+                
+                {/* Protected Routes */}
+                <Route
+                  path="/booking"
+                  element={
+                    <ProtectedRoute>
+                      <BookingPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  }
+                />
               </Routes>
 
               {/* Toast Notifications */}

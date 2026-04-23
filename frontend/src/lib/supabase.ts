@@ -1,53 +1,27 @@
 import { createClient } from '@supabase/supabase-js'
+import { Database } from '../types/database.types'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co'
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key'
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL!
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY!
 
-// Create client even with placeholder values for development
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true,
-    storage: window.localStorage,
+    detectSessionInUrl: true
   },
   realtime: {
     params: {
-      eventsPerSecond: 10,
-    },
-  },
-})
-
-// Helper to check if Supabase is properly configured
-export const isSupabaseConfigured = () => {
-  return supabaseUrl !== 'https://placeholder.supabase.co' && 
-         supabaseAnonKey !== 'placeholder-key'
-}
-
-// Helper types for database tables (will be generated later)
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
-
-// Database type definitions will be generated via: supabase gen types typescript
-export interface Database {
-  public: {
-    Tables: {
-      // Tables will be defined after database setup
-      [key: string]: any
-    }
-    Views: {
-      [key: string]: any
-    }
-    Functions: {
-      [key: string]: any
-    }
-    Enums: {
-      [key: string]: string
+      eventsPerSecond: 10
     }
   }
-}
+})
+
+// Database type definitions
+export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
+
+export type Facility = Tables<'facilities'>
+export type Booking = Tables<'bookings'>
+export type WaitlistEntry = Tables<'waitlist_entries'>
+export type Review = Tables<'reviews'>
+export type NoShowRecord = Tables<'no_show_records'>
