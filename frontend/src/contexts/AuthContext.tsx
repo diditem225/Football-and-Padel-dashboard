@@ -18,6 +18,7 @@ interface SignUpData {
   firstName: string
   lastName: string
   phone: string
+  cin: string
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -28,10 +29,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    // Check if we're in demo mode
+    const isDemoMode = import.meta.env.VITE_SUPABASE_URL === 'https://demo.supabase.co'
+    
+    if (isDemoMode) {
+      // In demo mode, just set loading to false
+      setIsLoading(false)
+      return
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       setUser(session?.user ?? null)
+      setIsLoading(false)
+    }).catch(() => {
+      // Handle connection errors gracefully
       setIsLoading(false)
     })
 
@@ -48,7 +61,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signUp = async (email: string, password: string, userData: SignUpData) => {
+    // Check if we're in demo mode
+    const isDemoMode = import.meta.env.VITE_SUPABASE_URL === 'https://demo.supabase.co'
+    
+    if (isDemoMode) {
+      toast.success('🎭 Demo Mode: Registration UI works! Set up Supabase for full functionality.')
+      return
+    }
+
     try {
+      // Validate CIN format
+      if (!/^\d{8}$/.test(userData.cin)) {
+        throw new Error('CIN must be exactly 8 digits')
+      }
+
+      // First check if CIN is already restricted
+      const { data: restrictedCheck, error: checkError } = await supabase
+        .rpc('is_cin_restricted', { cin_number: userData.cin })
+
+      if (checkError) {
+        console.warn('Could not check CIN restriction:', checkError)
+        // Continue with registration if we can't check (database might not be fully set up)
+      } else if (restrictedCheck) {
+        throw new Error('This CIN is restricted and cannot create new accounts. Please contact support.')
+      }
+
+      // Check if CIN is already in use by another user
+      const { data: existingUser, error: existingError } = await supabase
+        .from('user_profiles')
+        .select('id')
+        .eq('cin', userData.cin)
+        .single()
+
+      if (existingError && existingError.code !== 'PGRST116') {
+        console.warn('Could not check existing CIN:', existingError)
+      } else if (existingUser) {
+        throw new Error('This CIN is already registered with another account')
+      }
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -57,6 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             first_name: userData.firstName,
             last_name: userData.lastName,
             phone: userData.phone,
+            cin: userData.cin,
             is_admin: false,
             is_restricted: false,
           },
@@ -68,12 +119,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.success('Account created! Please check your email to confirm.')
     } catch (error) {
       const authError = error as AuthError
-      toast.error(authError.message || 'Failed to create account')
+      if (authError.message?.includes('fetch')) {
+        toast.error('🎭 Demo Mode: Set up Supabase credentials for full functionality')
+      } else if (authError.message?.includes('CIN is restricted')) {
+        toast.error('This national ID is restricted from creating accounts. Please contact support.')
+      } else if (authError.message?.includes('CIN is already registered')) {
+        toast.error('This national ID is already registered with another account.')
+      } else if (authError.message?.includes('CIN must be exactly 8 digits')) {
+        toast.error('National ID must be exactly 8 digits.')
+      } else {
+        toast.error(authError.message || 'Failed to create account')
+      }
       throw error
     }
   }
 
   const signIn = async (email: string, password: string) => {
+    // Check if we're in demo mode
+    const isDemoMode = import.meta.env.VITE_SUPABASE_URL === 'https://demo.supabase.co'
+    
+    if (isDemoMode) {
+      toast.success('🎭 Demo Mode: Login UI works! Set up Supabase for full functionality.')
+      return
+    }
+
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -85,7 +154,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.success('Welcome back!')
     } catch (error) {
       const authError = error as AuthError
-      toast.error(authError.message || 'Failed to sign in')
+      if (authError.message?.includes('fetch')) {
+        toast.error('🎭 Demo Mode: Set up Supabase credentials for full functionality')
+      } else {
+        toast.error(authError.message || 'Failed to sign in')
+      }
       throw error
     }
   }

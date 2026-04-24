@@ -10,8 +10,11 @@ const HomePage = () => {
 
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6 },
+    animate: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6 }
+    },
   }
 
   const staggerContainer = {
@@ -27,8 +30,28 @@ const HomePage = () => {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-football-600 via-football-700 to-padel-700 dark:from-football-800 dark:via-football-900 dark:to-padel-900">
-        {/* Animated Background Pattern */}
+      <section className="relative overflow-hidden">
+        {/* Video Background */}
+        <div className="absolute inset-0 w-full h-full">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="/videos/sports-background.mp4" type="video/mp4" />
+            <source src="/videos/sports-background.webm" type="video/webm" />
+            {/* Fallback gradient background if video fails to load */}
+          </video>
+          {/* Dark overlay for better text readability */}
+          <div className="absolute inset-0 bg-black/50"></div>
+        </div>
+
+        {/* Fallback gradient background (shown while video loads or if video fails) */}
+        <div className="absolute inset-0 bg-gradient-to-br from-football-600 via-football-700 to-padel-700 dark:from-football-800 dark:via-football-900 dark:to-padel-900"></div>
+
+        {/* Animated Background Pattern (kept for additional visual interest) */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full mix-blend-overlay filter blur-3xl animate-blob" />
           <div className="absolute top-0 right-0 w-96 h-96 bg-padel-300 rounded-full mix-blend-overlay filter blur-3xl animate-blob animation-delay-2000" />
@@ -44,7 +67,7 @@ const HomePage = () => {
           >
             <motion.div variants={fadeInUp} className="mb-8">
               <span className="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium mb-6">
-                🏟️ Tunisia's Premier Sports Complex
+                🏟️ Tunisia's Premier FiveStars Complex
               </span>
             </motion.div>
 

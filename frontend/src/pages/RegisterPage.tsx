@@ -11,6 +11,7 @@ const RegisterPage = () => {
     firstName: '',
     lastName: '',
     phone: '',
+    cin: '',
   })
   const [isLoading, setIsLoading] = useState(false)
   const { signUp } = useAuth()
@@ -21,10 +22,16 @@ const RegisterPage = () => {
     setIsLoading(true)
 
     try {
+      // Validate CIN format
+      if (!/^\d{8}$/.test(formData.cin)) {
+        throw new Error('CIN must be exactly 8 digits')
+      }
+
       await signUp(formData.email, formData.password, {
         firstName: formData.firstName,
         lastName: formData.lastName,
         phone: formData.phone,
+        cin: formData.cin,
       })
       navigate('/login')
     } catch (error) {
@@ -91,6 +98,28 @@ const RegisterPage = () => {
                   required
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-football-500 focus:border-transparent transition-all"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  CIN (Carte d'Identité Nationale)
+                </label>
+                <input
+                  type="text"
+                  value={formData.cin}
+                  onChange={(e) => {
+                    // Only allow digits and limit to 8 characters
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 8)
+                    setFormData({ ...formData, cin: value })
+                  }}
+                  required
+                  maxLength={8}
+                  placeholder="12345678"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-football-500 focus:border-transparent transition-all"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  8-digit national ID number (required for security)
+                </p>
               </div>
 
               <div>

@@ -183,13 +183,13 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- Seed initial facilities (6 football fields, 2 padel courts)
+-- Seed initial facilities (6 football fields, 2 padel courts) with TND pricing
 INSERT INTO public.facilities (name, type, capacity, hourly_rate) VALUES
-('Football Field 1', 'football_field', 14, 50.00),
-('Football Field 2', 'football_field', 14, 50.00),
-('Football Field 3', 'football_field', 14, 50.00),
-('Football Field 4', 'football_field', 14, 50.00),
-('Football Field 5', 'football_field', 14, 50.00),
-('Football Field 6', 'football_field', 14, 50.00),
-('Padel Court 1', 'padel_court', 4, 40.00),
-('Padel Court 2', 'padel_court', 4, 40.00);
+('Football Field 1', 'football_field', 14, 120.00),
+('Football Field 2', 'football_field', 14, 120.00),
+('Football Field 3', 'football_field', 14, 120.00),
+('Football Field 4', 'football_field', 14, 120.00),
+('Football Field 5', 'football_field', 14, 120.00),
+('Football Field 6', 'football_field', 14, 120.00),
+('Padel Court 1', 'padel_court', 4, 90.00),
+('Padel Court 2', 'padel_court', 4, 90.00);

@@ -25,3 +25,9 @@ export type Booking = Tables<'bookings'>
 export type WaitlistEntry = Tables<'waitlist_entries'>
 export type Review = Tables<'reviews'>
 export type NoShowRecord = Tables<'no_show_records'>
+
+// Extended types with relations
+export type BookingWithDetails = Booking & {
+  facility?: Facility
+  user_profile?: Tables<'user_profiles'>
+}

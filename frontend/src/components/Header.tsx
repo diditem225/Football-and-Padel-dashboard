@@ -4,13 +4,23 @@ import { motion } from 'framer-motion'
 
 const Header = () => {
   const { isAuthenticated, user, signOut } = useAuth()
+  const isDemoMode = import.meta.env.VITE_SUPABASE_URL === 'https://demo.supabase.co'
 
   return (
-    <motion.header
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800"
-    >
+    <>
+      {/* Demo Mode Banner */}
+      {isDemoMode && (
+        <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-center py-2 px-4 text-sm font-medium">
+          🎭 <strong>Demo Mode:</strong> UI fully functional! Set up Supabase for booking features. 
+          <a href="#setup" className="underline ml-2 hover:text-gray-800">Setup Guide</a>
+        </div>
+      )}
+      
+      <motion.header
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800"
+      >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -19,7 +29,7 @@ const Header = () => {
               <span className="text-white text-xl font-bold">⚽</span>
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-football-600 to-padel-600 bg-clip-text text-transparent">
-              SportBook
+              FiveStars
             </span>
           </Link>
 
@@ -45,6 +55,15 @@ const Header = () => {
                 >
                   My Bookings
                 </Link>
+                {/* Admin Link - only show for admin users */}
+                {user?.email === 'temimi.iyed@gmail.com' && (
+                  <Link
+                    to="/admin"
+                    className="text-gray-700 dark:text-gray-300 hover:text-football-600 dark:hover:text-football-400 transition-colors duration-200"
+                  >
+                    Admin
+                  </Link>
+                )}
               </>
             )}
             <Link
@@ -89,6 +108,7 @@ const Header = () => {
         </div>
       </nav>
     </motion.header>
+    </>
   )
 }
 

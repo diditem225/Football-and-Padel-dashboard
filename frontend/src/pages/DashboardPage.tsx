@@ -94,15 +94,15 @@ const DashboardPage = () => {
     if (!confirm('Are you sure you want to cancel this booking?')) return
 
     try {
-      const { error } = await supabase
-        .from('bookings')
-        .update({ 
-          status: 'cancelled',
-          cancelled_at: new Date().toISOString()
-        })
-        .eq('id', bookingId)
+      const { data, error } = await supabase.functions.invoke('cancel-booking', {
+        body: { booking_id: bookingId },
+      })
 
       if (error) throw error
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to cancel booking')
+      }
 
       toast.success('Booking cancelled successfully')
       fetchBookings()
@@ -112,7 +112,9 @@ const DashboardPage = () => {
     }
   }
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string | null) => {
+    if (!status) return null
+    
     const styles = {
       confirmed: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
       pending_payment: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',

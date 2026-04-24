@@ -1,5 +1,5 @@
 {
-  "name": "sports-complex-booking-frontend",
+  "name": "fivestars-booking-frontend",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -16,7 +16,7 @@
     "@tanstack/react-query": "^5.99.2",
     "aos": "^2.3.4",
     "axios": "^1.6.2",
-    "framer-motion": "^10.18.0",
+    "framer-motion": "10.16.16",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.6.0",
@@ -25,6 +25,7 @@
     "zustand": "^4.5.7"
   },
   "devDependencies": {
+    "@types/aos": "^3.0.7",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.14.0",

@@ -13,10 +13,10 @@ const Footer = () => {
               <div className="w-10 h-10 bg-gradient-to-br from-football-500 to-padel-500 rounded-lg flex items-center justify-center">
                 <span className="text-white text-xl font-bold">⚽</span>
               </div>
-              <span className="text-xl font-bold">SportBook</span>
+              <span className="text-xl font-bold">FiveStars</span>
             </div>
             <p className="text-gray-400 text-sm">
-              Tunisia's premier sports complex booking platform. Book football fields and padel courts with ease.
+              Tunisia's premier FiveStars booking platform. Book football fields and padel courts with ease.
             </p>
           </div>
 
@@ -63,7 +63,7 @@ const Footer = () => {
             <h3 className="font-bold mb-4">Contact</h3>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>📍 Tunisia</li>
-              <li>📧 info@sportbook.tn</li>
+              <li>📧 info@fivestars.tn</li>
               <li>📱 +216 XX XXX XXX</li>
               <li>🕐 24/7 Online Booking</li>
             </ul>
@@ -73,7 +73,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-gray-400">
-            © {currentYear} SportBook. All rights reserved.
+            © {currentYear} FiveStars. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a href="#" className="text-gray-400 hover:text-white transition-colors">

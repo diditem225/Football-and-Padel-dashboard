@@ -2,7 +2,35 @@
 
 A modern, full-stack web application for managing bookings at a sports complex in Tunisia featuring **6 football fields** and **2 padel courts**. Built with React, TypeScript, Tailwind CSS, and Supabase.
 
+> **🚀 DEMO VERSION READY!** See [DEMO_README.md](./DEMO_README.md) for quick setup (30 minutes to working demo)
+
 ## ✨ Features
+
+### 🚀 Quick Start (Demo Version)
+
+**Get a working demo in 30 minutes:**
+
+1. **Deploy Backend:**
+   ```bash
+   # Windows
+   deploy-demo.bat
+   
+   # Mac/Linux
+   ./deploy-demo.sh
+   ```
+
+2. **Start Frontend:**
+   ```bash
+   cd frontend
+   npm install
+   cp .env.example .env.local
+   # Edit .env.local with your Supabase credentials
+   npm run dev
+   ```
+
+3. **Test:** Open http://localhost:3000 and create a booking!
+
+📖 **Full Setup Guide:** [DEMO_SETUP.md](./DEMO_SETUP.md)
 
 ### 🎯 Core Functionality
 - **Hourly Booking System** - Book facilities by the hour with real-time availability

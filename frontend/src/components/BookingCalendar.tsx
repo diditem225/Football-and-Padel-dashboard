@@ -8,12 +8,6 @@ import { useAuth } from '../contexts/AuthContext'
 type Facility = Database['public']['Tables']['facilities']['Row']
 type Booking = Database['public']['Tables']['bookings']['Row']
 
-interface TimeSlot {
-  time: string
-  available: boolean
-  bookingId?: string
-}
-
 interface BookingCalendarProps {
   selectedDate: Date
   onDateChange: (date: Date) => void
@@ -26,6 +20,7 @@ export default function BookingCalendar({ selectedDate, onDateChange }: BookingC
   const [loading, setLoading] = useState(true)
   const [selectedSlot, setSelectedSlot] = useState<{ facilityId: string; time: string } | null>(null)
   const [showBookingModal, setShowBookingModal] = useState(false)
+  const [bookingInProgress, setBookingInProgress] = useState(false)
 
   // Generate time slots from 8 AM to 11 PM
   const timeSlots = Array.from({ length: 15 }, (_, i) => {
@@ -55,10 +50,9 @@ export default function BookingCalendar({ selectedDate, onDateChange }: BookingC
           event: '*',
           schema: 'public',
           table: 'bookings',
-          filter: `booking_date=eq.${selectedDate.toISOString().split('T')[0]}`,
         },
         () => {
-          fetchBookings()
+          fetchBookings() // refresh slots whenever any booking changes
         }
       )
       .subscribe()
@@ -89,6 +83,7 @@ export default function BookingCalendar({ selectedDate, onDateChange }: BookingC
   const fetchBookings = async () => {
     try {
       const dateStr = selectedDate.toISOString().split('T')[0]
+      
       const { data, error } = await supabase
         .from('bookings')
         .select('*')
@@ -96,6 +91,7 @@ export default function BookingCalendar({ selectedDate, onDateChange }: BookingC
         .in('status', ['confirmed', 'pending_payment'])
 
       if (error) throw error
+      
       setBookings(data || [])
     } catch (error) {
       console.error('Error fetching bookings:', error)
@@ -104,9 +100,13 @@ export default function BookingCalendar({ selectedDate, onDateChange }: BookingC
 
   const isSlotBooked = (facilityId: string, time: string): boolean => {
     return bookings.some(
-      (booking) =>
-        booking.facility_id === facilityId &&
-        booking.start_time === time
+      (booking) => {
+        // Handle both time formats: "14:00" and "14:00:00"
+        const bookingTime = booking.start_time.substring(0, 5) // Get "14:00" from "14:00:00"
+        const targetTime = time.substring(0, 5) // Ensure we compare "14:00" format
+        
+        return booking.facility_id === facilityId && bookingTime === targetTime
+      }
     )
   }
 
@@ -126,8 +126,10 @@ export default function BookingCalendar({ selectedDate, onDateChange }: BookingC
   }
 
   const handleBooking = async () => {
-    if (!selectedSlot || !user) return
+    if (!selectedSlot || !user || bookingInProgress) return
 
+    setBookingInProgress(true)
+    
     try {
       const facility = facilities.find((f) => f.id === selectedSlot.facilityId)
       if (!facility) return
@@ -136,32 +138,38 @@ export default function BookingCalendar({ selectedDate, onDateChange }: BookingC
       const endHour = parseInt(startTime.split(':')[0]) + 1
       const endTime = `${endHour.toString().padStart(2, '0')}:00`
 
-      // Generate confirmation code
-      const confirmationCode = `${facility.type.toUpperCase()}-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`
+      setShowBookingModal(false)
+      setSelectedSlot(null)
 
-      const { data, error } = await supabase
-        .from('bookings')
-        .insert({
-          user_id: user.id,
+      // Call Edge Function to create booking
+      const { data, error } = await supabase.functions.invoke('create-booking', {
+        body: {
           facility_id: selectedSlot.facilityId,
           booking_date: selectedDate.toISOString().split('T')[0],
           start_time: startTime,
           end_time: endTime,
-          confirmation_code: confirmationCode,
-          status: 'confirmed',
-        })
-        .select()
-        .single()
+        },
+      })
 
       if (error) throw error
 
-      toast.success(`Booking confirmed! Code: ${confirmationCode}`)
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to create booking')
+      }
+
+      // Refresh bookings immediately after successful creation
+      await fetchBookings()
+
       setShowBookingModal(false)
       setSelectedSlot(null)
-      fetchBookings()
+
+      toast.success(`Booking confirmed! Code: ${data.booking.confirmation_code}`)
+      
     } catch (error: any) {
       console.error('Error creating booking:', error)
       toast.error(error.message || 'Failed to create booking')
+    } finally {
+      setBookingInProgress(false)
     }
   }
 
@@ -241,7 +249,7 @@ export default function BookingCalendar({ selectedDate, onDateChange }: BookingC
                   >
                     <div>{facility.name}</div>
                     <div className="text-xs font-normal text-gray-500 dark:text-gray-400">
-                      {facility.type === 'football_field' ? '⚽ Football' : '🎾 Padel'} • ${facility.hourly_rate}/hr
+                      {facility.type === 'football_field' ? '⚽ Football' : '🎾 Padel'} • {facility.hourly_rate} TND/hr
                     </div>
                   </th>
                 ))}
@@ -332,7 +340,7 @@ export default function BookingCalendar({ selectedDate, onDateChange }: BookingC
                     <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
                       <p className="text-sm text-gray-600 dark:text-gray-400">Price</p>
                       <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                        ${facility?.hourly_rate}
+                        {facility?.hourly_rate} TND
                       </p>
                     </div>
                   </div>
@@ -348,9 +356,17 @@ export default function BookingCalendar({ selectedDate, onDateChange }: BookingC
                 </button>
                 <button
                   onClick={handleBooking}
-                  className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                  disabled={bookingInProgress}
+                  className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center"
                 >
-                  Confirm Booking
+                  {bookingInProgress ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Booking...
+                    </>
+                  ) : (
+                    'Confirm Booking'
+                  )}
                 </button>
               </div>
             </motion.div>
