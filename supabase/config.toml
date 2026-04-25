@@ -1,0 +1,50 @@
+# Supabase Configuration for Sports Complex Booking System
+# Task 8: Supabase Auth Configuration
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+# Site URL - Update for production deployment
+site_url = "http://localhost:3000"
+# Additional redirect URLs for OAuth and email confirmations
+additional_redirect_urls = ["http://localhost:5173"]
+# JWT token expiry: 3600 seconds (1 hour) - balances security and UX
+jwt_expiry = 3600
+# Refresh token rotation: Enhanced security, prevents token replay attacks
+refresh_token_rotation_enabled = true
+# Require re-authentication when updating password
+security_update_password_require_reauthentication = true
+
+[auth.email]
+# Enable user signup via email
+enable_signup = true
+# Require confirmation for email changes (both old and new email)
+double_confirm_changes = true
+# Require email confirmation before users can log in
+enable_confirmations = true
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[realtime]
+enabled = true
+ip_version = "IPv4"
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[edge_functions]
+enabled = true
+ip_version = "IPv4"
+
+[analytics]
+enabled = false
