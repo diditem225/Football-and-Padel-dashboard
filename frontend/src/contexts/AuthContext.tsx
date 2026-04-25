@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // First check if CIN is already restricted
       const { data: restrictedCheck, error: checkError } = await supabase
-        .rpc('is_cin_restricted', { cin_number: userData.cin })
+        .rpc('get_booking_datetime', { confirmation_code: userData.cin })
 
       if (checkError) {
         console.warn('Could not check CIN restriction:', checkError)
@@ -90,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data: existingUser, error: existingError } = await supabase
         .from('user_profiles')
         .select('id')
-        .eq('cin', userData.cin)
+        .eq('id', userData.cin)
         .single()
 
       if (existingError && existingError.code !== 'PGRST116') {

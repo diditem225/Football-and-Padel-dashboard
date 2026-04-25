@@ -137,7 +137,7 @@ const AnalyticsDashboard = () => {
   }
 
   const fetchRevenueByMonth = async () => {
-    const months = []
+    const months: { month: string; revenue: number; bookings: number }[] = []
     const now = new Date()
     
     // Get last 6 months
