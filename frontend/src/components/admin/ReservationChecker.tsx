@@ -34,13 +34,14 @@ const ReservationChecker = () => {
 
       if (error) throw error
 
-      if (!data || typeof data !== 'object') {
+      if (!data) {
         toast.error('Invalid confirmation code')
         setBookingDetails(null)
         return
       }
 
-      const booking = data as BookingDetails
+      // Cast the data to BookingDetails
+      const booking = data as unknown as BookingDetails
       setBookingDetails(booking)
 
       if (booking.already_checked_in) {

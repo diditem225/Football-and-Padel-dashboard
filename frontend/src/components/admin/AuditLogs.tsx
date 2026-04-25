@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+// import { supabase } from '../../lib/supabase'
 import toast from 'react-hot-toast'
 
 interface AuditLog {

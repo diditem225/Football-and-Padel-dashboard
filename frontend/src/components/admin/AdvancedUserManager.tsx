@@ -8,7 +8,7 @@ interface User {
   first_name: string
   last_name: string
   email?: string
-  phone?: string | null
+  phone?: string | null | undefined
   cin?: string | null
   is_admin: boolean | null
   is_restricted: boolean | null
